@@ -63,3 +63,41 @@ def test_local_cache_provider_stream(tmp_path) -> None:
 
     latest = provider.latest()
     assert latest.order_book.mid_price == 100.0
+
+
+def test_local_cache_provider_wide_format(tmp_path) -> None:
+    timestamp = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    book = pl.DataFrame(
+        {
+            "datetime": [timestamp, timestamp],
+            "side": ["ASK", "BID"],
+            "price_1": [101.0, 100.8],
+            "size_1": [2.5, 3.1],
+            "price_2": [101.2, 100.6],
+            "size_2": [1.0, 1.4],
+        }
+    )
+    book.write_parquet(tmp_path / "pair_l2_book.parquet")
+
+    trades = pl.DataFrame(
+        {
+            "datetime": [timestamp, timestamp],
+            "price": [101.0, 100.9],
+            "size": [0.2, 0.15],
+            "taker_side": ["BUY", "SELL"],
+        }
+    )
+    trades.write_parquet(tmp_path / "pair_trade.parquet")
+
+    provider = LocalCacheProvider(
+        StreamConfig(symbol="PAIR", depth_levels=2, window_seconds=60),
+        cache_dir=tmp_path,
+        book_pattern="*_l2_book.parquet",
+        trade_pattern="*_trade.parquet",
+    )
+
+    snapshot = next(iter(provider.stream()))
+    assert snapshot.order_book.best_ask == 101.0
+    assert snapshot.order_book.best_bid == 100.8
+    assert snapshot.trades[0].side == "buy"
+    assert snapshot.trades[0].price == 101.0

@@ -14,6 +14,7 @@ Source reference: `/Users/mathinvariant/codes/crypto/hft/hft_crypto_mm` (polars-
 - `data/*/*.parquet`: order book + trade snapshots; treat as sample fixtures for `tests/fixtures/market/`.
 - `feature_explore.ipynb`, `docs/return.md`: baseline notebooks to reproduce in `notebooks/` with new adapters.
 - Chinese-language guide `特征工程文档.md`: translate key sections into future docs if needed.
+- Run the crypto runner against these dumps with `--cache-dir /path/to/HYPE_USD --book-pattern '*_l2_book.parquet' --trade-pattern '*_trade.parquet'`.
 
 ## Dependency Gaps
 - Adds `polars`, `scikit-learn`, `lightgbm` (optional), `seaborn`. Update `pyproject.toml` once the feature pipeline lands.

@@ -19,11 +19,22 @@ class OnChainProvider(MarketDataProvider):
     config: StreamConfig
     cache_dir: Path
     name: str = "onchain"
+    book_pattern: str | None = None
+    trade_pattern: str | None = None
+    funding_pattern: str | None = None
+    metrics_pattern: str | None = None
 
     def __post_init__(self) -> None:
-        self._base = LocalCacheProvider(self.config, self.cache_dir, name=self.name)
-        metrics_path = self.cache_dir / f"{self.config.symbol.lower()}_metrics.parquet"
-        self._metrics = self._load_metrics(metrics_path)
+        self._base = LocalCacheProvider(
+            self.config,
+            self.cache_dir,
+            name=self.name,
+            book_pattern=self.book_pattern,
+            trade_pattern=self.trade_pattern,
+            funding_pattern=self.funding_pattern,
+        )
+        metrics_path = self._resolve_metrics_path()
+        self._metrics = self._load_metrics(metrics_path) if metrics_path else {}
 
     def stream(self, *, since: datetime | None = None) -> Iterable[MarketSnapshot]:
         return self._iter_with_metrics(self._base.stream(since=since))
@@ -55,8 +66,15 @@ class OnChainProvider(MarketDataProvider):
                 venue_metrics=combined,
             )
 
-    def _load_metrics(self, path: Path) -> Dict[datetime, Dict[str, float]]:
-        if not path.exists():
+    def _resolve_metrics_path(self) -> Path | None:
+        if self.metrics_pattern:
+            candidates = sorted(self.cache_dir.glob(self.metrics_pattern))
+            return candidates[-1] if candidates else None
+        default = self.cache_dir / f"{self.config.symbol.lower()}_metrics.parquet"
+        return default if default.exists() else None
+
+    def _load_metrics(self, path: Path | None) -> Dict[datetime, Dict[str, float]]:
+        if path is None or not path.exists():
             return {}
         frame = pl.read_parquet(path)
         metrics: Dict[datetime, Dict[str, float]] = {}

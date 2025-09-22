@@ -34,14 +34,35 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--limit", type=int, default=50, help="Number of snapshots to evaluate")
     parser.add_argument("--cache-dir", default=".cache/data", help="Directory containing parquet caches")
     parser.add_argument("--regen", action="store_true", help="Regenerate synthetic cache before running")
+    parser.add_argument("--book-pattern", default=None, help="Glob pattern for order-book parquet files")
+    parser.add_argument("--trade-pattern", default=None, help="Glob pattern for trade parquet files")
+    parser.add_argument("--funding-pattern", default=None, help="Glob pattern for funding parquet files")
+    parser.add_argument("--metrics-pattern", default=None, help="Glob pattern for metrics parquet files")
     return parser
 
 
-def ensure_provider(symbol: str, cache_dir: Path, regen: bool) -> OnChainProvider:
-    if regen or not (cache_dir / f"{symbol.lower()}_book.parquet").exists():
+def ensure_provider(
+    symbol: str,
+    cache_dir: Path,
+    regen: bool,
+    *,
+    book_pattern: str | None,
+    trade_pattern: str | None,
+    funding_pattern: str | None,
+    metrics_pattern: str | None,
+) -> OnChainProvider:
+    default_book = cache_dir / f"{symbol.lower()}_book.parquet"
+    if book_pattern is None and trade_pattern is None and (regen or not default_book.exists()):
         generate_cache(symbol, rows=300, output_dir=cache_dir)
     stream_config = StreamConfig(symbol=symbol, depth_levels=2, window_seconds=1)
-    return OnChainProvider(stream_config, cache_dir)
+    return OnChainProvider(
+        stream_config,
+        cache_dir,
+        book_pattern=book_pattern,
+        trade_pattern=trade_pattern,
+        funding_pattern=funding_pattern,
+        metrics_pattern=metrics_pattern,
+    )
 
 
 def format_order(order: ExecutionOrder) -> str:
@@ -57,7 +78,15 @@ def main() -> None:
     args = parser.parse_args()
     cache_dir = Path(args.cache_dir)
 
-    provider = ensure_provider(args.symbol, cache_dir, args.regen)
+    provider = ensure_provider(
+        args.symbol,
+        cache_dir,
+        args.regen,
+        book_pattern=args.book_pattern,
+        trade_pattern=args.trade_pattern,
+        funding_pattern=args.funding_pattern,
+        metrics_pattern=args.metrics_pattern,
+    )
 
     agents = [
         ImbalanceAgent(),
