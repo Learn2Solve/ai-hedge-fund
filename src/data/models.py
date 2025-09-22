@@ -1,3 +1,76 @@
+"""Lightweight data containers for crypto market snapshots."""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Mapping, Sequence
+
+
+@dataclass(frozen=True, slots=True)
+class OrderBookLevel:
+    price: float
+    size: float
+
+
+@dataclass(frozen=True, slots=True)
+class OrderBookSnapshot:
+    timestamp: datetime
+    bids: Sequence[OrderBookLevel]
+    asks: Sequence[OrderBookLevel]
+
+    @property
+    def best_bid(self) -> float:
+        return self.bids[0].price if self.bids else 0.0
+
+    @property
+    def best_ask(self) -> float:
+        return self.asks[0].price if self.asks else 0.0
+
+    @property
+    def mid_price(self) -> float:
+        bid = self.best_bid
+        ask = self.best_ask
+        if bid == 0.0 and ask == 0.0:
+            return 0.0
+        if bid == 0.0:
+            return ask
+        if ask == 0.0:
+            return bid
+        return 0.5 * (bid + ask)
+
+
+@dataclass(frozen=True, slots=True)
+class Trade:
+    timestamp: datetime
+    price: float
+    size: float
+    side: str  # "buy" or "sell"
+
+
+@dataclass(frozen=True, slots=True)
+class FundingEntry:
+    timestamp: datetime
+    rate: float
+
+
+@dataclass(frozen=True, slots=True)
+class MarketSnapshot:
+    symbol: str
+    order_book: OrderBookSnapshot
+    trades: Sequence[Trade]
+    recent_funding: FundingEntry | None
+    venue_metrics: Mapping[str, float]
+
+
+__all__ = [
+    "OrderBookLevel",
+    "OrderBookSnapshot",
+    "Trade",
+    "FundingEntry",
+    "MarketSnapshot",
+]
+
 from pydantic import BaseModel
 
 
@@ -71,7 +144,6 @@ class LineItem(BaseModel):
     period: str
     currency: str
 
-    # Allow additional fields dynamically
     model_config = {"extra": "allow"}
 
 
@@ -145,7 +217,7 @@ class Position(BaseModel):
 
 
 class Portfolio(BaseModel):
-    positions: dict[str, Position]  # ticker -> Position mapping
+    positions: dict[str, Position]
     total_cash: float = 0.0
 
 
@@ -153,22 +225,30 @@ class AnalystSignal(BaseModel):
     signal: str | None = None
     confidence: float | None = None
     reasoning: dict | str | None = None
-    max_position_size: float | None = None  # For risk management signals
+    max_position_size: float | None = None
 
 
 class TickerAnalysis(BaseModel):
     ticker: str
-    analyst_signals: dict[str, AnalystSignal]  # agent_name -> signal mapping
+    price: float | None = None
+    financial_metrics: FinancialMetrics | None = None
 
 
-class AgentStateData(BaseModel):
-    tickers: list[str]
-    portfolio: Portfolio
-    start_date: str
-    end_date: str
-    ticker_analyses: dict[str, TickerAnalysis]  # ticker -> analysis mapping
-
-
-class AgentStateMetadata(BaseModel):
-    show_reasoning: bool = False
-    model_config = {"extra": "allow"}
+__all__ += [
+    "Price",
+    "PriceResponse",
+    "FinancialMetrics",
+    "FinancialMetricsResponse",
+    "LineItem",
+    "LineItemResponse",
+    "InsiderTrade",
+    "InsiderTradeResponse",
+    "CompanyNews",
+    "CompanyNewsResponse",
+    "CompanyFacts",
+    "CompanyFactsResponse",
+    "Portfolio",
+    "Position",
+    "AnalystSignal",
+    "TickerAnalysis",
+]
