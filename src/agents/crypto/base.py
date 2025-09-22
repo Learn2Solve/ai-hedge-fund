@@ -8,11 +8,12 @@ from typing import Dict, Protocol
 from ...data.models import MarketSnapshot
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class SignalEnvelope:
     """Uniform container for agent outputs."""
 
     name: str
+    symbol: str
     value: float
     confidence: float
     diagnostics: Dict[str, float]

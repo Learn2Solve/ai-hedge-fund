@@ -62,3 +62,6 @@ force_alphabetical_sort_within_sections = true
 
 [tool.poetry.scripts]
 backtester = "src.backtesting.cli:main"
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+

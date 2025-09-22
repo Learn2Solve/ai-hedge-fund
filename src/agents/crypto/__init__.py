@@ -1,7 +1,7 @@
 """Crypto-focused agent implementations for the high-frequency fork."""
 
 from .base import SignalAgent, SignalEnvelope
-from .execution import ExecutionCoordinator
+from .execution import ExecutionCoordinator, ExecutionOrder
 from .flow import FlowAgent
 from .imbalance import ImbalanceAgent
 from .momentum import MomentumAgent
@@ -19,4 +19,5 @@ __all__ = [
     "SignalRouter",
     "RiskGate",
     "ExecutionCoordinator",
+    "ExecutionOrder",
 ]

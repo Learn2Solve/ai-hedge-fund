@@ -2,8 +2,9 @@
 
 from .base import MarketDataProvider, StreamConfig
 from .binance import BinanceProvider
-from .okx import OKXProvider
 from .hyperliquid import HyperliquidProvider
+from .local_cache import LocalCacheProvider
+from .okx import OKXProvider
 from .onchain import OnChainProvider
 
 __all__ = [
@@ -13,4 +14,5 @@ __all__ = [
     "OKXProvider",
     "HyperliquidProvider",
     "OnChainProvider",
+    "LocalCacheProvider",
 ]
