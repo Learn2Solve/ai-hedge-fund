@@ -23,6 +23,7 @@ Copy `.env.example` to `.env` and fill in exchange keys (`BINANCE_*`, `OKX_*`, `
 - **Backtester:** `poetry run python src/backtester.py --ticker BTCUSDT --start-date 2024-06-01`
 - **Crypto agent loop (dry-run):** `poetry run python src/cli/crypto_runner.py --symbol BTCUSDT --limit 100`
   - Point at recorded data via `--cache-dir /path/to/HYPE_USD --book-pattern '*_l2_book.parquet' --trade-pattern '*_trade.parquet'`.
+  - Tune risk/execution on the fly (e.g. `--max-drawdown-bps 5000 --max-position-usd 2000 --max-order-usd 500`).
 - **Live loop (legacy discretionary stack):** `poetry run python src/main.py --ticker BTCUSDT,ETHUSDT --ollama`
 - **API:** `poetry run uvicorn app.backend.main:app --reload`
 

@@ -38,6 +38,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--trade-pattern", default=None, help="Glob pattern for trade parquet files")
     parser.add_argument("--funding-pattern", default=None, help="Glob pattern for funding parquet files")
     parser.add_argument("--metrics-pattern", default=None, help="Glob pattern for metrics parquet files")
+    parser.add_argument("--max-position-usd", type=float, default=2_000.0, help="Risk gate notional cap")
+    parser.add_argument("--max-drawdown-bps", type=float, default=120.0, help="Risk gate drawdown limit in bps")
+    parser.add_argument("--max-order-usd", type=float, default=500.0, help="Execution coordinator per-order notional cap")
     return parser
 
 
@@ -94,8 +97,11 @@ def main() -> None:
         VolatilityAgent(),
         FlowAgent(),
     ]
-    risk_gate = RiskGate(max_position_usd=2_000.0, max_drawdown_bps=120.0)
-    executor = ExecutionCoordinator(max_order_usd=500.0)
+    risk_gate = RiskGate(
+        max_position_usd=args.max_position_usd,
+        max_drawdown_bps=args.max_drawdown_bps,
+    )
+    executor = ExecutionCoordinator(max_order_usd=args.max_order_usd)
     router = SignalRouter(agents=agents, risk_gate=risk_gate, executor=executor)
     workflow = CryptoWorkflow(router).build().compile()
 
