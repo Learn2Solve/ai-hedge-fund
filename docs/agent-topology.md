@@ -25,6 +25,7 @@
 ```
 
 ## Coordination Notes
+- `src/graph/crypto_workflow.py` materialises the LangGraph wrapper around `SignalRouter`, keeping signals and orders inside the state dictionary so downstream components can replay them.
 - Use LangGraph conditional edges so the Risk Gatekeeper can halt execution without stopping feature updates.
 - Persist concise state in a vector store (`VECTOR_DB_PATH`) plus Redis for low-latency counters.
 - Each feature agent emits `(signal_value, confidence, diagnostics_ref)` to ease notebook playback.

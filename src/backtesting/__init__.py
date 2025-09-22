@@ -26,6 +26,7 @@ from .controller import AgentController
 from .engine import BacktestEngine
 from .valuation import calculate_portfolio_value, compute_exposures
 from .output import OutputBuilder
+from .crypto_replay import BacktestSummary, CryptoBacktester
 
 __all__ = [
     # Types
@@ -49,6 +50,6 @@ __all__ = [
     "calculate_portfolio_value",
     "compute_exposures",
     "OutputBuilder",
+    "BacktestSummary",
+    "CryptoBacktester",
 ]
-
-

@@ -22,6 +22,6 @@ Source reference: `/Users/mathinvariant/codes/crypto/hft/hft_crypto_mm` (polars-
 ## Integration Sketch
 1. Wrap existing Parquet readers with new exchange streaming buffers; expose `TradeBatch` / `OrderBookSnapshot` models.
 2. Convert feature builders into pure functions returning `pd.DataFrame | pl.DataFrame` with type hints to ease testing.
-3. Register each feature block as a LangGraph node and save embeddings/logs to the shared vector store.
-4. Re-create `feature_explore.ipynb` as `notebooks/imbalance_scout.ipynb`, referencing cached datasets.
+3. Register each feature block as a LangGraph node and save embeddings/logs to the shared vector store (`CryptoWorkflow` now demonstrates the interface).
+4. Re-create `feature_explore.ipynb` as `notebooks/imbalance_scout.ipynb`, referencing cached datasets (placeholder notebooks are included). 
 5. Port imbalance ridge workflow into `agents/imbalance/model.py` with config dataclasses and deterministic tests.

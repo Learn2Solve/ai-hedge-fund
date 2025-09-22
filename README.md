@@ -21,7 +21,8 @@ Copy `.env.example` to `.env` and fill in exchange keys (`BINANCE_*`, `OKX_*`, `
 
 ## Run
 - **Backtester:** `poetry run python src/backtester.py --ticker BTCUSDT --start-date 2024-06-01`
-- **Live loop (dry-run by default):** `poetry run python src/main.py --ticker BTCUSDT,ETHUSDT --ollama`
+- **Crypto agent loop (dry-run):** `poetry run python src/cli/crypto_runner.py --symbol BTCUSDT --limit 100`
+- **Live loop (legacy discretionary stack):** `poetry run python src/main.py --ticker BTCUSDT,ETHUSDT --ollama`
 - **API:** `poetry run uvicorn app.backend.main:app --reload`
 
 Prime the cache with synthetic snapshots so notebooks and tests run deterministically:

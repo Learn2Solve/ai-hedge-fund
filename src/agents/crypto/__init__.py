@@ -6,7 +6,7 @@ from .flow import FlowAgent
 from .imbalance import ImbalanceAgent
 from .momentum import MomentumAgent
 from .risk_gate import RiskGate
-from .router import SignalRouter
+from .router import MemoryCallback, RouterResult, SignalRouter
 from .volatility import VolatilityAgent
 
 __all__ = [
@@ -17,6 +17,8 @@ __all__ = [
     "VolatilityAgent",
     "FlowAgent",
     "SignalRouter",
+    "MemoryCallback",
+    "RouterResult",
     "RiskGate",
     "ExecutionCoordinator",
     "ExecutionOrder",

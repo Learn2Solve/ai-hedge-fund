@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Callable, Iterable, List, Sequence
+from typing import Callable, List, Sequence
 
 from ...data.models import MarketSnapshot
 from .base import SignalAgent, SignalEnvelope
@@ -11,6 +11,12 @@ from .execution import ExecutionCoordinator, ExecutionOrder
 from .risk_gate import RiskGate
 
 MemoryCallback = Callable[[SignalEnvelope], None]
+
+
+@dataclass(frozen=True, slots=True)
+class RouterResult:
+    signals: List[SignalEnvelope]
+    orders: List[ExecutionOrder]
 
 
 @dataclass(slots=True)
@@ -22,7 +28,7 @@ class SignalRouter:
     executor: ExecutionCoordinator
     memory_callback: MemoryCallback | None = None
 
-    def dispatch(self, snapshot: MarketSnapshot) -> List[ExecutionOrder]:
+    def dispatch(self, snapshot: MarketSnapshot) -> RouterResult:
         envelopes: List[SignalEnvelope] = []
         for agent in self.agents:
             envelope = agent.evaluate(snapshot)
@@ -31,7 +37,8 @@ class SignalRouter:
                 self.memory_callback(envelope)
 
         approved = self.risk_gate.filter(snapshot, envelopes)
-        return self.executor.execute(snapshot, approved)
+        orders = self.executor.execute(snapshot, approved)
+        return RouterResult(signals=envelopes, orders=orders)
 
 
-__all__ = ["SignalRouter", "MemoryCallback"]
+__all__ = ["SignalRouter", "MemoryCallback", "RouterResult"]

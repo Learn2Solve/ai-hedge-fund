@@ -22,16 +22,12 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main() -> None:
-    parser = build_parser()
-    args = parser.parse_args()
-
-    output_dir = Path(args.output)
+def generate_cache(symbol: str, rows: int, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     random.seed(42)
     base_price = 100.0
-    timestamps = [datetime(2024, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=i) for i in range(args.rows)]
+    timestamps = [datetime(2024, 1, 1, tzinfo=timezone.utc) + timedelta(seconds=i) for i in range(rows)]
 
     book_rows = []
     trade_rows = []
@@ -103,12 +99,18 @@ def main() -> None:
             }
         )
 
-    symbol_lower = args.symbol.lower()
+    symbol_lower = symbol.lower()
     pl.DataFrame(book_rows).write_parquet(output_dir / f"{symbol_lower}_book.parquet")
     pl.DataFrame(trade_rows).write_parquet(output_dir / f"{symbol_lower}_trade.parquet")
     pl.DataFrame(funding_rows).write_parquet(output_dir / f"{symbol_lower}_funding.parquet")
     pl.DataFrame(metrics_rows).write_parquet(output_dir / f"{symbol_lower}_metrics.parquet")
-    print(f"Synthetic snapshots written to {output_dir}")
+
+
+def main() -> None:
+    parser = build_parser()
+    args = parser.parse_args()
+    generate_cache(args.symbol, args.rows, Path(args.output))
+    print(f"Synthetic snapshots written to {args.output}")
 
 
 if __name__ == "__main__":

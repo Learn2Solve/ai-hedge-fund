@@ -101,6 +101,7 @@ def test_router_and_risk_and_execution() -> None:
     risk = RiskGate(max_position_usd=500.0, max_drawdown_bps=80.0)
     executor = ExecutionCoordinator(max_order_usd=250.0)
     router = SignalRouter(agents=agents, risk_gate=risk, executor=executor)
-    orders = router.dispatch(snapshot)
-    assert orders
-    assert all(order.symbol == "BTCUSDT" for order in orders)
+    result = router.dispatch(snapshot)
+    assert result.orders
+    assert all(order.symbol == "BTCUSDT" for order in result.orders)
+    assert len(result.signals) == len(agents)
